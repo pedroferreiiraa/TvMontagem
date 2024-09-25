@@ -1,14 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, LabelList } from 'recharts';
-import { Warning as WarningIcon } from '@mui/icons-material';
+import { BarChart, Bar, XAxis, YAxis, Legend, ResponsiveContainer, LabelList } from 'recharts';
 
-interface CustomTooltip {
-  active?: boolean;
-  payload?: {
-    payload: MontagemData;
-  }[];
-  label?: string;
-}
+
 
 interface MontagemData {
   prodbruta_completo: number;
