@@ -16,31 +16,35 @@ app.get('/api/tvmontagem', async (req, res) => {
 
     try {    
         const query = `
-SELECT distinct  a.cdmaquina,
-    case when a.cdmaquina = 000061 then 'Linha 01'
-     when a.cdmaquina = 000062 then 'Linha 02'
-     when a.cdmaquina = 000063 then 'Linha 03'
-     when a.cdmaquina = 000064 then 'Linha 04'
-     when a.cdmaquina = 000065 then 'Linha 05'
-     when a.cdmaquina = 000066 then 'Linha 06' end 'linha',
-    
-    a.nrop, 
-    a.DsParada, 
-    b.ciclopadrao, 
-    a.ciclomedio, 
-    b.prodbruta, 
-    a.prodplan,
+SELECT DISTINCT  
+    a.cdmaquina,
     CASE 
-        WHEN c.prodplan = 0 THEN NULL 
-        ELSE (CAST(c.prodbruta AS FLOAT) / c.prodplan) * 100 
-    END AS percentualconcluido,
-    c.cdproduto, 
-    c.DsProduto,
-      CASE 
+        WHEN a.cdmaquina = 000061 THEN 'Linha 01'
+        WHEN a.cdmaquina = 000062 THEN 'Linha 02'
+        WHEN a.cdmaquina = 000063 THEN 'Linha 03'
+        WHEN a.cdmaquina = 000064 THEN 'Linha 04'
+        WHEN a.cdmaquina = 000065 THEN 'Linha 05'
+        WHEN a.cdmaquina = 000066 THEN 'Linha 06' 
+    END AS 'linha',    
+    a.nrop,
+    CASE 
         WHEN a.StMaquina = 0 THEN 'Máquina Parada'  
         WHEN a.StMaquina = 1 THEN 'Máquina Trabalhando'   
         WHEN a.StMaquina = 2 THEN 'Máquina Sem Conexão' 
     END AS status,
+    a.DsParada,
+    b.ciclopadrao, 
+    a.ciclomedio, 
+    b.prodbruta,  -- campo original com filtro de data
+    COALESCE(b_full.prodbruta, 0) AS prodbruta_completo, -- campo adicional sem filtro de data
+    a.prodplan,
+    a.prodprev, 
+    CASE 
+        WHEN c.prodplan = 0 THEN NULL 
+        ELSE (COALESCE(b_full.prodbruta, 0) / c.prodplan) * 100  -- Substituído por prodbruta_completo
+    END AS percentualconcluido,
+    c.cdproduto, 
+    c.DsProduto,
     CASE 
         WHEN a.ciclomedio = 0 THEN NULL 
         ELSE (b.ciclopadrao / a.ciclomedio) * 100 
@@ -52,12 +56,16 @@ FROM
     wmVIndHH b ON a.nrop = b.nrop
     LEFT JOIN 
     ViewWMTRFichaPro c ON a.nrop = c.nrop
-    WHERE 
+    LEFT JOIN 
+    (SELECT nrop, SUM(prodbruta) AS prodbruta FROM wmVIndHH GROUP BY nrop) b_full ON a.nrop = b_full.nrop  -- Subconsulta para pegar prodbruta completo
+
+WHERE 
     a.cdgalpao = '000004'
     AND b.dthrinihora >= CAST(GETDATE() AS DATE)
     AND b.dthrinihora < DATEADD(DAY, 1, CAST(GETDATE() AS DATE))
     AND DATEPART(HOUR, b.dthrinihora) = DATEPART(HOUR, GETDATE())
-order by a.cdmaquina
+
+ORDER BY a.cdmaquina;
         `;
         
         // Conexão com o banco de dados e execução da consulta

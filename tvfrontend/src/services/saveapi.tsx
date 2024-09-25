@@ -92,69 +92,66 @@ const TvMontagem: React.FC = () => {
               {machineData.status}
               {isMachineStopped && (
                 <span className="text-red-600 ml-2">
-                  
+                  <WarningIcon />
                 </span>
               )}
             </p>
-            {!isMachineStopped && ( // Exibir percentual apenas se a máquina estiver trabalhando
-              <div className="my-3">
-                <div className="relative pt-1">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <span className="text-xs 2xl:text-2xl font-semibold inline-block py-1 px-2 uppercase rounded-full text-teal-600 bg-teal-200 mb-1">
-                        {machineData.percentualconcluido.toFixed(2)}%
-                      </span>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-xs 2xl:text-2xl font-semibold inline-block text-teal-600">
-                        100%
-                      </span>
-                    </div>
+            <div className="my-3">
+              <div className="relative pt-1">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="text-xs 2xl:text-2xl font-semibold inline-block py-1 px-2 uppercase rounded-full text-teal-600 bg-teal-200 mb-1">
+                      {machineData.percentualconcluido.toFixed(2)}%
+                    </span>
                   </div>
-                  <div className="flex h-4 mb-4 bg-gray-200 rounded">
-                    <div className="bg-teal-600 h-full rounded" style={{ width: `${machineData.percentualconcluido}%` }} />
+                  <div className="text-right">
+                    <span className="text-xs 2xl:text-2xl font-semibold inline-block text-teal-600">
+                      100%
+                    </span>
                   </div>
                 </div>
+                <div className="flex h-4 mb-4 bg-gray-200 rounded">
+                  <div className="bg-teal-600 h-full rounded" style={{ width: `${machineData.percentualconcluido}%` }} />
+                </div>
               </div>
-            )}
-            {!isMachineStopped && ( // Exibir gráfico apenas se a máquina estiver trabalhando
-              <div className="flex-grow w-full h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    data={[machineData]}
-                    margin={{
-                      top: 30,
-                      right: 0,
-                      left: 0,
-                      bottom: 0,
-                    }}
+            </div>
+            <div className="flex-grow w-full h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={[machineData]}
+                  margin={{
+                    top: 30,
+                    right: 0,
+                    left: 0,
+                    bottom: 0,
+                  }}
+                >
+                  <XAxis dataKey="cdinjetora" tick={{ fill: '#000' }} />
+                  <YAxis domain={[0, 130]} tickCount={14} tick={{ fill: '#666' }} />
+                  {/* <Tooltip content={<CustomTooltip />} /> */}
+                  <Legend
+                    formatter={(value) => value === 'ciclo' ? 'Eficiência de Ciclo' : value}
+                  />
+                  <Bar 
+                    dataKey="ciclo" 
+                    fill={isCycleBelowEfficiency ? "#FF0000" : (isCycleEqualEfficiency ? "#FFFF00" : "#008000")}
+                    barSize={100}
                   >
-                    <XAxis dataKey="cdinjetora" tick={{ fill: '#000' }} />
-                    <YAxis domain={[0, 130]} tickCount={14} tick={{ fill: '#666' }} />
-                    <Legend
-                      formatter={(value) => value === 'ciclo' ? 'Eficiência de Ciclo' : value}
+                    <LabelList
+                      dataKey="ciclo"
+                      position="top"
+                      formatter={(value: number) => `${value ? value.toFixed(2) : ''}%`}
+                      fill="#000"
+                      style={{
+                        fontSize: '2rem',
+                        fontWeight: 'bold',
+                        textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)',
+                      }}
                     />
-                    <Bar 
-                      dataKey="ciclo" 
-                      fill={isCycleBelowEfficiency ? "#FF0000" : (isCycleEqualEfficiency ? "#FFFF00" : "#008000")}
-                      barSize={100}
-                    >
-                      <LabelList
-                        dataKey="ciclo"
-                        position="top"
-                        formatter={(value: number) => `${value ? value.toFixed(2) : ''}%`}
-                        fill="#000"
-                        style={{
-                          fontSize: '2rem',
-                          fontWeight: 'bold',
-                          textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)',
-                        }}
-                      />
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            )}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           </div>
         );
       })}
@@ -170,5 +167,23 @@ const TvMontagem: React.FC = () => {
     </div>
   );
 };
+
+// const CustomTooltip: React.FC<CustomTooltip> = ({ active, payload }) => {
+//   if (active && payload && payload.length) {
+//     const data = payload[0].payload;
+//     return (
+//       <div className="bg-white border border-gray-300 p-4 rounded shadow-lg">
+//         <p className="text-sm font-semibold">{`Linha: ${data.cdmaquina}`}</p>
+//         <p className="text-sm">{`Ciclo Padrão: ${data.ciclopadrao}`}</p>
+//         <p className="text-sm">{`Ciclo Médio: ${data.ciclomedio.toFixed(2)}`}</p>
+//         <p className="text-sm">{`Produção Bruta: ${data.prodbruta_completo}`}</p>
+//         <p className="text-sm">{`Ciclo: ${data.ciclo !== null ? data.ciclo.toFixed(2) : ''}`}</p>
+//         <p className="text-sm">{`Status: ${data.status}`}</p>
+//       </div>
+//     );
+//   }
+
+//   return null;
+// };
 
 export default TvMontagem;

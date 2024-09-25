@@ -79,3 +79,18 @@ select {
   }
 }
 
+/* @keyframes blink {
+  0% {
+    background-color: #FF0000;
+  }
+  50% {
+    background-color: transparent;
+  }
+  100% {
+    background-color: #FF0000;
+  }
+}
+
+/* Classe aplicada quando a máquina está parada */
+/* .machine-stopped {
+  animation: blink 1s infinite; /* 1 segundo de duração e repetição infinita */
