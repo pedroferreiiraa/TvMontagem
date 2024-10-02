@@ -11,7 +11,7 @@ const config = {
         encrypt: false, 
         enableArithAbort: true,
     },
-    requestTimeout: 60000 // Tempo limite para cada requisição (em milissegundos)
+    requestTimeout: 120000 // Tempo limite para cada requisição (em milissegundos)
 };
 
 async function connectToDatabase() {

@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, Legend, ResponsiveContainer, LabelList } from 'recharts';
 
-
-
 interface MontagemData {
   prodbruta_completo: number;
   linha: string;
@@ -25,6 +23,7 @@ const TvMontagem: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [eficiencia, setEficiencia] = useState<number | ''>(90);
+  const [eficiencia2, setEficiencia2] = useState<number | ''>(105);
 
   const fetchData = async () => {
     try {
@@ -45,7 +44,7 @@ const TvMontagem: React.FC = () => {
     fetchData();
     const intervalId = setInterval(() => {
       fetchData();
-    }, 60000);
+    }, 65000);
     return () => clearInterval(intervalId);
   }, []);
 
@@ -58,109 +57,144 @@ const TvMontagem: React.FC = () => {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 2xl:grid-cols-3 2xl:text-2xl gap-2 mb-2 overflow-hidden">
-      {data.map((machineData, index) => {
-        const cicloValue = typeof machineData.ciclo === 'number' 
-          ? machineData.ciclo 
-          : Number(machineData.ciclo); // Converter para número
+    <div className="grid p-4 grid-cols-1 md:grid-cols-3 2xl:grid-cols-3 2xl:text-2xl gap-2 mb-2 overflow-hidden">
+      {data.length > 0 ? (
+        data.map((machineData, index) => {
+          const cicloValue = typeof machineData.ciclo === 'number' 
+            ? machineData.ciclo 
+            : Number(machineData.ciclo); // Converter para número
       
-        const eficienciaValue = typeof eficiencia === 'number' 
-          ? eficiencia 
-          : Number(eficiencia); // Converter para número
-      
-        const isMachineStopped = machineData.status !== "Máquina Trabalhando";
-        const isCycleBelowEfficiency = !isNaN(cicloValue) && !isNaN(eficienciaValue) && cicloValue < eficienciaValue;
-        const isCycleEqualEfficiency = cicloValue === eficienciaValue;
+          const eficienciaValue = typeof eficiencia === 'number' 
+            ? eficiencia 
+            : Number(eficiencia); // Converter para número
 
-        return (
-          <div
-            key={index}
-            className={`bg-white rounded-lg shadow-lg p-0 flex flex-col h-auto ${isMachineStopped ? 'animate-pulse bg-red-500' : ''}`}
-          >
-            <h2 className="text-xl font-bold text-black-600 mb-0">{machineData.linha}</h2>
-            <div className="flex justify-between items-center mb-0">
-              <p className="text-black-800 font-bold">{machineData.DsProduto}</p>
-            </div>
-            <p className='text-gray-700'>
-              {machineData.status}
-              {isMachineStopped && (
-                <span className="text-red-600 ml-2">
-                  
-                </span>
-              )}
-            </p>
-            {!isMachineStopped && ( // Exibir percentual apenas se a máquina estiver trabalhando
-              <div className="my-3">
-                <div className="relative pt-1">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <span className="text-xs 2xl:text-2xl font-semibold inline-block py-1 px-2 uppercase rounded-full text-teal-600 bg-teal-200 mb-1">
-                        {machineData.percentualconcluido.toFixed(2)}%
-                      </span>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-xs 2xl:text-2xl font-semibold inline-block text-teal-600">
-                        100%
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex h-4 mb-4 bg-gray-200 rounded">
-                    <div className="bg-teal-600 h-full rounded" style={{ width: `${machineData.percentualconcluido}%` }} />
-                  </div>
+          const eficienciaValue2 = typeof eficiencia2 === 'number' 
+            ? eficiencia2 
+            : Number(eficiencia2); // Converter para número
+
+          const isMachineStopped = machineData.status !== "Máquina Trabalhando";
+          const isCycleBelowEfficiency = !isNaN(cicloValue) && cicloValue < eficienciaValue;
+          const isCycleAboveEfficiency = !isNaN(cicloValue) && cicloValue > eficienciaValue2;
+
+          // Verificar se a máquina está parada e se a descrição da parada é "PARADA NÃO INFORMADA"
+          const isUninformedStop = isMachineStopped && machineData.DsParada === "PARADA NÃO INFORMADA";
+
+          return (
+            <div
+              key={index}
+              className={`bg-white rounded-lg shadow-lg p-0 flex flex-col h-[450px] ${isUninformedStop ? '!bg-red-500' : ''}`}
+            >
+              <h2 className="text-lg text-center font-bold text-black-600 mb-0 mx-2">{machineData.linha}</h2>
+              <p className="text-black-800  text-center font-bold ">{machineData.DsProduto}</p>
+              
+            
+
+              {isMachineStopped ? (
+                <div className="flex flex-col items-center justify-center flex-grow">
+                  <p className="text-3xl font-bold text-center text-black">
+                    {machineData.DsParada}
+                  </p>
                 </div>
-              </div>
-            )}
-            {!isMachineStopped && ( // Exibir gráfico apenas se a máquina estiver trabalhando
-              <div className="flex-grow w-full h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    data={[machineData]}
-                    margin={{
-                      top: 30,
-                      right: 0,
-                      left: 0,
-                      bottom: 0,
-                    }}
-                  >
-                    <XAxis dataKey="cdinjetora" tick={{ fill: '#000' }} />
-                    <YAxis domain={[0, 130]} tickCount={14} tick={{ fill: '#666' }} />
-                    <Legend
-                      formatter={(value) => value === 'ciclo' ? 'Eficiência de Ciclo' : value}
-                    />
-                    <Bar 
-                      dataKey="ciclo" 
-                      fill={isCycleBelowEfficiency ? "#FF0000" : (isCycleEqualEfficiency ? "#FFFF00" : "#008000")}
-                      barSize={100}
-                    >
-                      <LabelList
-                        dataKey="ciclo"
-                        position="top"
-                        formatter={(value: number) => `${value ? value.toFixed(2) : ''}%`}
-                        fill="#000"
-                        style={{
-                          fontSize: '2rem',
-                          fontWeight: 'bold',
-                          textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)',
+              ) : (
+                <>
+                  {/* Exibir percentual apenas se a máquina estiver trabalhando */}
+                  <div className="my-1">
+                    <div className="relative pt-1">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <span
+                            className={`text-xs 2xl:text-lg font-semibold inline-block px-2 rounded-full mb-1 ${machineData.percentualconcluido}`} 
+                          > 
+                            Evolução da O.P - {machineData.percentualconcluido.toFixed(2)}%
+                          </span>
+                        </div>
+
+                        <div className="text-right">
+                          <span className="text-xs 2xl:text-2xl font-semibold inline-block text-black-600">
+                            100%
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex h-4 mb-2 bg-gray-200 rounded">
+                        <div
+                          className="h-full rounded"
+                          style={{
+                            width: `${machineData.percentualconcluido}%`,
+                            backgroundColor: machineData.percentualconcluido <= 100 ? 'blue' : 'yellow'
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Exibir gráfico apenas se a máquina estiver trabalhando */}
+                  <div className="flex-grow w-full h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart
+                        data={[machineData]}
+                        margin={{
+                          top: 30,
+                          right: 0,
+                          left: 0,
+                          bottom: 0,
                         }}
-                      />
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            )}
-          </div>
-        );
-      })}
-      <div className="overflow-auto mt-4 mx-5">
+                      >
+                        <XAxis dataKey="cdinjetora" tick={{ fill: '#000' }} />
+                        <YAxis domain={[0, 150]} tickCount={4} tick={{ fill: '#666' }} />
+                        <Legend
+                          formatter={(value) => value === 'ciclo' ? 'Eficiência de Ciclo' : value}
+                        />
+                        <Bar 
+                          dataKey="ciclo" 
+                          fill={isCycleBelowEfficiency ? "green" : (isCycleAboveEfficiency ? "red" : "green")}
+                          barSize={100}
+                        >
+                          <LabelList
+                            dataKey="ciclo"
+                            position="top"
+                            formatter={(value: number) => `${value ? value.toFixed(2) : ''}%`}
+                            fill="#000"
+                            style={{
+                              fontSize: '2.3rem',
+                              fontWeight: 'bold',
+                              textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)',
+                            }}
+                          />
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </>
+              )}
+            </div>
+          );
+        })
+      ) : (
+        // Placeholder de layout para manter as divs estáveis quando não há dados
+        <div className="bg-white rounded-lg shadow-lg p-0 flex flex-col h-[900px] col-span-3 justify-center items-center">
+          <p className="text-lg font-semibold text-gray-800">Nenhum dado disponível</p>
+        </div>
+      )}
+      <div className='col-span-3'>
+      <div className="overflow-auto mt-4 mx-5 fixed-bottom">
         <input
           type="number"
           value={eficiencia}
           onChange={(e) => setEficiencia(e.target.value ? Number(e.target.value) : '')}
           placeholder="Defina a eficiência"
-          className="p-2 border-black border-2 rounded"
+          className="p-2 border-black border-2  rounded mb-1 w-20"
+        />
+        <input
+          type="number"
+          value={eficiencia2}
+          onChange={(e) => setEficiencia2(e.target.value ? Number(e.target.value) : '')}
+          placeholder="Defina a eficiência"
+          className="p-2 border-black border-2 mx-4 rounded w-20"
         />
       </div>
+      </div>
     </div>
+    
   );
 };
 

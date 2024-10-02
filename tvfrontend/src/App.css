@@ -79,18 +79,15 @@ select {
   }
 }
 
-/* @keyframes blink {
-  0% {
-    background-color: #FF0000;
+@keyframes pulse-slow {
+  0%, 100% {
+    opacity: 1;
   }
   50% {
-    background-color: transparent;
-  }
-  100% {
-    background-color: #FF0000;
+    opacity: 0.5;
   }
 }
 
-/* Classe aplicada quando a máquina está parada */
-/* .machine-stopped {
-  animation: blink 1s infinite; /* 1 segundo de duração e repetição infinita */
+.animate-pulse-slow {
+  animation: pulse-slow 2s infinite; /* Ajuste o tempo (2s) conforme necessário */
+}
