@@ -152,8 +152,8 @@ ORDER BY a.cdmaquina;
 });
 
 const PORT = 8005;
-const HOST = '192.168.16.194';
+
 
 app.listen(PORT, HOST, () => {
-    console.log(`Servidor rodando em http://${HOST}:${PORT}`);
+    console.log(`Servidor rodando em ${PORT}`);
 });
