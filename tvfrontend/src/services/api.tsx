@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { BarChart, Bar, XAxis, YAxis, Legend, ResponsiveContainer, LabelList } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, LabelList } from 'recharts';
 
 interface MontagemData {
   prodbruta_completo: number;
@@ -57,7 +57,7 @@ const TvMontagem: React.FC = () => {
   }
 
  return (
-    <div className="text-2xl">
+    <div className="text-2xl p-3">
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 ">
         {data.length > 0 ? (
           data.map((machineData, index) => {
@@ -74,15 +74,15 @@ const TvMontagem: React.FC = () => {
               : Number(eficiencia2);
     
             const isMachineStopped = machineData.status !== "Máquina Trabalhando";
-            const isCycleBelowEfficiency = !isNaN(cicloValue) && cicloValue < eficienciaValue;
-            const isCycleAboveEfficiency = !isNaN(cicloValue) && cicloValue > eficienciaValue2;
+            const isCycleBelowEfficiency = !isNaN(cicloValue) && cicloValue <= eficienciaValue;
+            const isCycleAboveEfficiency = !isNaN(cicloValue) && cicloValue >= eficienciaValue2;
     
             const isUninformedStop = isMachineStopped && machineData.DsParada === "PARADA NÃO INFORMADA";
     
             return (
               <div
                 key={index}
-                className={`bg-white rounded-lg shadow-lg  flex flex-col h-[450px] ${isUninformedStop ? '!bg-red-500' : ''}`}
+                className={`bg-white rounded-lg shadow-lg   flex flex-col h-[452px] ${isUninformedStop ? '!bg-red-500' : ''}`}
               >
                 <h2 className="text-lg text-center font-bold text-black-600 mb-2">{machineData.linha}</h2>
                 <p className="text-black-800 text-2xl  text-center font-bold mb-2">{machineData.DsProduto}</p>
@@ -124,7 +124,7 @@ const TvMontagem: React.FC = () => {
                         <BarChart
                           data={[machineData]}
                           margin={{
-                            top: 30,
+                            top: 0,
                             right: 0,
                             left: 0,
                             bottom: 0,
@@ -135,7 +135,7 @@ const TvMontagem: React.FC = () => {
                           <Bar 
                             barSize={100}
                             dataKey="ciclo" 
-                            fill={isCycleBelowEfficiency ? "green" : (isCycleAboveEfficiency ? "red" : "green")}
+                            fill={isCycleBelowEfficiency ? "red" : (isCycleAboveEfficiency ? "red" : "green")}
                           >
                             <LabelList
                               dataKey="ciclo"
