@@ -154,6 +154,6 @@ ORDER BY a.cdmaquina;
 const PORT = 8005;
 
 
-app.listen(PORT, HOST, () => {
+app.listen(PORT, () => {
     console.log(`Servidor rodando em ${PORT}`);
 });
