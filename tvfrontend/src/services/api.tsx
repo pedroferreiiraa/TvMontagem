@@ -45,7 +45,7 @@ const TvMontagem: React.FC = () => {
     const intervalId = setInterval(() => {
       fetchData();
     }, 65000);
-    return () => clearInterval(intervalId);
+    return () => clearInterval(intervalId);    
   }, []);
 
   if (loading) {
