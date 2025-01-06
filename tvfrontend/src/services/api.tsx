@@ -27,7 +27,7 @@ const TvMontagem: React.FC = () => {
 
   const fetchData = async () => {
     try {
-      const response = await fetch('http://192.168.16.240:8005/api/tvmontagem');
+      const response = await fetch('http://192.168.16.240:8005/api/tvotimizada');
       if (!response.ok) {
         throw new Error(`Erro: ${response.status}`);
       }
